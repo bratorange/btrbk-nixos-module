@@ -4,6 +4,32 @@ with lib;
 
 let
   cfg = config.programs.btrbk;
+
+  # map the sections part of the btrbk config into a the module
+  volume_submodule =
+    {name, config, ...}:
+    {
+      options = {
+        subvolumes = mkOption {
+            # TODO single argument syntactical sugar
+            type = with types; listOf path;
+            default = [];
+            example = ''[ "/path/to/important/data" ]'';
+            description = ''
+              A list of subvolumes which should be backed up.
+            '';
+        };
+        targets = mkOption {
+          # TODO single argument syntactical sugar
+          type = with types; listOf path;
+          default = [];
+          example = ''[ "/path/to/important/data" ]'';
+          description = ''
+            A list of targets where backups of this volume should be stored.
+          '';
+        };
+      };
+    };
 in {
   options.programs.btrbk = {
     enable = mkOption {
