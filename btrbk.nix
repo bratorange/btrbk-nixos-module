@@ -20,7 +20,7 @@ in
 
     # map the sections part of the btrbk config into a the module
     volume_submodule =
-      {name, config, ...}:
+      ({name, config, ... }:
       {
         options = {
           subvolumes = mkOption {
@@ -42,7 +42,7 @@ in
             '';
           };
         };
-    };
+    });
   in {
     options.programs.btrbk = {
       enable = mkOption {
@@ -54,7 +54,7 @@ in
       };
       inherit extraOptions;
       volumes = mkOption {
-        type = types.attrsOF volume_submodule;
+        type = with types; attrsOf (submodule volume_submodule);
         default = { };
       };
     };
@@ -64,8 +64,8 @@ in
       environment.systemPackages = [ pkgs.btrbk ];
       environment.etc."btrbk/btrbk.conf" = {
         source = pkgs.writeText "btrbk.conf"
-          ( optionalString (cfg.extraOptions != null) cfg.extraOptions )
-          ++ ( cfg.volumes
+          (( optionalString (cfg.extraOptions != null) cfg.extraOptions )
+          + debug.traceVal( builtins.concatStringsSep "\n" (builtins.attrNames cfg.volumes)));
       };
     };
   }
