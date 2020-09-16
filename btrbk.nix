@@ -1,8 +1,24 @@
 { config, lib, pkgs, ... }:
 
 with lib;
+with debug;
 
 let
+  list2lines =
+    inputList: builtins.concatStringsSep "\n" inputList;
+
+  setToNameValuePairs = 
+    entrys: map (name:
+      {
+        name = name;
+        value = traceVal entrys."${name}";
+      })
+    (builtins.attrNames entrys);
+
+  convertEntrys =
+    entrys: map (pair: traceVal (pair.name + "\n" + (list2lines (map (line: "  " +line) (builtins.attrNames pair.value.subvolumes))))) 
+    entrys;
+  
   extraOptions = mkOption {
     type = with types; nullOr lines;
     default = null;
@@ -14,7 +30,6 @@ let
     '';
   };
 in
-
   let
     cfg = config.programs.btrbk;
 
@@ -24,7 +39,7 @@ in
       {
         options = {
           subvolumes = mkOption {
-              # TODO single argument syntactical sugar
+              # TODO enforce extra type checking
               type = with types; either (listOf path) (attrsOf extraOptions);
               default = [];
               example = ''[ "/home/user/important_data" ]'';
@@ -59,13 +74,14 @@ in
       };
     };
 
-  ###### implementation
+    ###### implementation
     config = mkIf cfg.enable {
       environment.systemPackages = [ pkgs.btrbk ];
+      # TODO add other attributes
       environment.etc."btrbk/btrbk.conf" = {
         source = pkgs.writeText "btrbk.conf"
           (( optionalString (cfg.extraOptions != null) cfg.extraOptions )
-          + debug.traceVal( builtins.concatStringsSep "\n" (builtins.attrNames cfg.volumes)));
+          + ( list2lines (convertEntrys (setToNameValuePairs cfg.volumes))));
       };
     };
   }
