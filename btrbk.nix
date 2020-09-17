@@ -19,8 +19,10 @@ let
     entrys: map (pair: pair.name + "\n" + (list2lines (map (line: "  " +line) (builtins.attrNames pair.value.subvolumes)))) 
     entrys;
   
-  #TODO implemnt
-  convertLists = null;
+  #TODO implement
+  convertLists =
+    entrys: map (pair: pair.name + "\n" + ((list2lines (map (line: "  " + line) pair.value.subvolumes))))
+    entrys;
 
   checkForSubAttrs =
     elem: entry:
@@ -93,7 +95,7 @@ in
         source = pkgs.writeText "btrbk.conf"
           (( optionalString (cfg.extraOptions != null) cfg.extraOptions )
           + ((converter: (list2lines (converter (setToNameValuePairs cfg.volumes))))
-            (if (traceVal (checkForSubAttrs cfg.volumes "subvolumes")) then convertEntrys else convertsLists)));
+            (if (traceVal (checkForSubAttrs cfg.volumes "subvolumes")) then convertEntrys else convertLists)));
       };
     };
   }
