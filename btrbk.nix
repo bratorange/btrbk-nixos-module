@@ -11,13 +11,24 @@ let
     entrys: map (name:
       {
         name = name;
-        value = traceVal entrys."${name}";
+        value = entrys."${name}";
       })
     (builtins.attrNames entrys);
 
   convertEntrys =
-    entrys: map (pair: traceVal (pair.name + "\n" + (list2lines (map (line: "  " +line) (builtins.attrNames pair.value.subvolumes))))) 
+    entrys: map (pair: pair.name + "\n" + (list2lines (map (line: "  " +line) (builtins.attrNames pair.value.subvolumes)))) 
     entrys;
+  
+  #TODO implemnt
+  convertLists = null;
+
+  checkForSubAttrs =
+    elem: entry:
+    let
+      names = builtins.attrNames elem;
+    in
+    # TODO add abort statement if nothing matches
+    if 0 < builtins.length names then builtins.isAttrs (traceVal (builtins.getAttr entry elem."${head names}")) else false;
   
   extraOptions = mkOption {
     type = with types; nullOr lines;
@@ -81,7 +92,8 @@ in
       environment.etc."btrbk/btrbk.conf" = {
         source = pkgs.writeText "btrbk.conf"
           (( optionalString (cfg.extraOptions != null) cfg.extraOptions )
-          + ( list2lines (convertEntrys (setToNameValuePairs cfg.volumes))));
+          + ((converter: (list2lines (converter (setToNameValuePairs cfg.volumes))))
+            (if (traceVal (checkForSubAttrs cfg.volumes "subvolumes")) then convertEntrys else convertsLists)));
       };
     };
   }
