@@ -7,6 +7,12 @@ let
   list2lines =
     inputList: builtins.concatStringsSep "\n" inputList;
 
+  lines2list =
+    inputLines: builtins.split "\n" inputLines;
+
+  addPrefixes =
+    lines: map (line: "  " + line) lines;
+
   setToNameValuePairs = 
     entrys: map (name:
       {
@@ -16,12 +22,11 @@ let
     (builtins.attrNames entrys);
 
   convertEntrys =
-    entrys: map (pair: pair.name + "\n" + (list2lines (map (line: "  " +line) (builtins.attrNames pair.value.subvolumes)))) 
+    entrys: map (pair: pair.name + "\n" + (list2lines (addPrefixes (traceVal(builtins.concatLists (map (subvolume: [subvolume] ++ (addPrefixes (lines2list pair.value.subvolumes."${subvolume}"))) (builtins.attrNames pair.value.subvolumes)))))))
     entrys;
   
-  #TODO implement
   convertLists =
-    entrys: map (pair: pair.name + "\n" + ((list2lines (map (line: "  " + line) pair.value.subvolumes))))
+    entrys: map (pair: pair.name + "\n" + ((list2lines (addPrefixes pair.value.subvolumes))))
     entrys;
 
   checkForSubAttrs =
@@ -30,11 +35,11 @@ let
       names = builtins.attrNames elem;
     in
     # TODO add abort statement if nothing matches
-    if 0 < builtins.length names then builtins.isAttrs (traceVal (builtins.getAttr entry elem."${head names}")) else false;
+    if 0 < builtins.length names then builtins.isAttrs (builtins.getAttr entry elem."${head names}") else false;
   
   extraOptions = mkOption {
     type = with types; nullOr lines;
-    default = null;
+    default = "";
     example = ''
       snapshot_dir           btrbk_snapshots
     '';
@@ -53,7 +58,7 @@ in
         options = {
           subvolumes = mkOption {
               # TODO enforce extra type checking
-              type = with types; either (listOf path) (attrsOf extraOptions);
+              type = with types; either (listOf path) (attrsOf lines);
               default = [];
               example = ''[ "/home/user/important_data" ]'';
               description = ''
