@@ -22,12 +22,10 @@ let
     (builtins.attrNames entrys);
 
   convertEntrys =
-    entrys: map (pair: pair.name + "\n" + (list2lines (addPrefixes (traceVal(builtins.concatLists (map (subvolume: [subvolume] ++ (addPrefixes (lines2list pair.value.subvolumes."${subvolume}"))) (builtins.attrNames pair.value.subvolumes)))))))
-    entrys;
+    subentry: builtins.concatLists (map (subvolume: [subvolume] ++ (addPrefixes (lines2list subentry."${subvolume}"))) (builtins.attrNames subentry));
   
   convertLists =
-    entrys: map (pair: pair.name + "\n" + ((list2lines (addPrefixes pair.value.subvolumes))))
-    entrys;
+    subentry: subentry;
 
   checkForSubAttrs =
     elem: entry:
@@ -99,8 +97,8 @@ in
       environment.etc."btrbk/btrbk.conf" = {
         source = pkgs.writeText "btrbk.conf"
           (( optionalString (cfg.extraOptions != null) cfg.extraOptions )
-          + ((converter: (list2lines (converter (setToNameValuePairs cfg.volumes))))
-            (if (traceVal (checkForSubAttrs cfg.volumes "subvolumes")) then convertEntrys else convertLists)));
+          + ((converter: (list2lines (map (pair: pair.name + "\n" + (list2lines (addPrefixes (converter pair.value.subvolumes)))) (setToNameValuePairs cfg.volumes))))
+            (if (checkForSubAttrs cfg.volumes "subvolumes") then convertEntrys else convertLists)));
       };
     };
   }
