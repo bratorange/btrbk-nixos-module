@@ -7,10 +7,10 @@ let
   cfg = config.programs.btrbk;
 
   list2lines =
-    inputList: builtins.concatStringsSep "\n" inputList;
+    inputList: (builtins.concatStringsSep "\n" inputList) + "\n";
 
   lines2list =
-    inputLines: builtins.split "\n" inputLines;
+    inputLines: builtins.filter isString (builtins.split "\n" inputLines);
 
   addPrefixes =
     lines: map (line: "  " + line) lines;
@@ -35,7 +35,16 @@ let
     listOrAttrs: builtins.isAttrs listOrAttrs;
 
   renderVolumes =
-    list2lines (map (pair: "volume " + pair.name + "\n  " + pair.value.extraOptions + (renderSubsection pair.value "subvolume") + "\n" + (renderSubsection pair.value "target")+ "\n") (setToNameValuePairs cfg.volumes));
+    list2lines (map (pair: 
+      # volume head line
+      "volume " + pair.name + "\n" 
+      # volume extra options
+      + (list2lines (addPrefixes (lines2list pair.value.extraOptions))) 
+      # volume subvolumes which should be backed up
+      + (renderSubsection pair.value "subvolume") 
+      # volume backup targets
+      + (renderSubsection pair.value "target"))
+    (setToNameValuePairs cfg.volumes));
 
   renderSubsection =
     volumeEntry: subsectionType: (
@@ -63,7 +72,7 @@ let
         inherit extraOptions;
         subvolumes = mkOption {
             # TODO enforce extra type checking
-            type = with types; either (listOf path) (attrsOf lines);
+            type = with types; either (listOf str) (attrsOf lines);
             default = [];
             example = ''[ "/home/user/important_data" ]'';
             description = ''
@@ -72,7 +81,7 @@ let
         };
         targets = mkOption {
           # TODO single argument syntactical sugar
-          type = with types; either (listOf path) (attrsOf extraOptions);
+          type = with types; either (listOf str) (attrsOf extraOptions);
           default = [];
           example = ''[ "/mount/backup_drive" ]'';
           description = ''
