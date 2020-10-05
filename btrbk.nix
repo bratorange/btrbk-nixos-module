@@ -47,11 +47,12 @@ let
     (setToNameValuePairs cfg.volumes));
 
   renderSubsection =
-    volumeEntry: subsectionType: (
-      subsectionEntry:(
-        converter: (list2lines (addPrefixes (converter subsectionEntry subsectionType))))
-        (if (checkForSubAttrs subsectionEntry) then convertEntrys else convertLists))
-      (builtins.getAttr (subsectionType + "s") volumeEntry);
+    volumeEntry: subsectionType:
+      let 
+        subsectionEntry = builtins.getAttr (subsectionType + "s") volumeEntry;
+        converter = if (checkForSubAttrs subsectionEntry) then convertEntrys else convertLists;
+      in
+        list2lines (addPrefixes (converter subsectionEntry subsectionType));
 
   extraOptions = mkOption {
     type = with types; nullOr lines;
