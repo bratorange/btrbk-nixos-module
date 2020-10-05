@@ -52,7 +52,7 @@ let
         subsectionEntry = builtins.getAttr (subsectionType + "s") volumeEntry;
         converter = if (checkForSubAttrs subsectionEntry) then convertEntrys else convertLists;
       in
-        list2lines (addPrefixes (converter subsectionEntry subsectionType));
+        list2lines (addPrefixes (converter (traceVal (builtins.deepSeq subsectionEntry subsectionEntry)) subsectionType));
 
   extraOptions = mkOption {
     type = with types; nullOr lines;
@@ -82,7 +82,7 @@ let
         };
         targets = mkOption {
           # TODO single argument syntactical sugar
-          type = with types; either (listOf str) (attrsOf extraOptions);
+          type = with types; either (listOf str) (attrsOf lines);
           default = [];
           example = ''[ "/mount/backup_drive" ]'';
           description = ''
