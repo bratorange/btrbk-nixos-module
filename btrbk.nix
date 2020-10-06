@@ -52,11 +52,11 @@ let
         subsectionEntry = builtins.getAttr (subsectionType + "s") volumeEntry;
         converter = if (checkForSubAttrs subsectionEntry) then convertEntrys else convertLists;
       in
-        list2lines (addPrefixes (converter (traceVal (builtins.deepSeq subsectionEntry subsectionEntry)) subsectionType));
+        list2lines (addPrefixes (converter (builtins.deepSeq subsectionEntry subsectionEntry) subsectionType));
 
   extraOptions = mkOption {
     type = with types; nullOr lines;
-    default = "";
+    default = null;
     example = ''
       snapshot_dir           btrbk_snapshots
     '';
@@ -72,7 +72,6 @@ let
       options = {
         inherit extraOptions;
         subvolumes = mkOption {
-            # TODO enforce extra type checking
             type = with types; either (listOf str) (attrsOf lines);
             default = [];
             example = ''[ "/home/user/important_data" ]'';
@@ -104,13 +103,13 @@ let
       volumes = mkOption {
         type = with types; attrsOf (submodule volume_submodule);
         default = { };
+        # TODO write description and example
       };
     };
 
     ###### implementation
     config = mkIf cfg.enable {
       environment.systemPackages = [ pkgs.btrbk ];
-      # TODO add other attributes
       environment.etc."btrbk/btrbk.conf" = {
         source = pkgs.writeText "btrbk.conf"
           (( optionalString (cfg.extraOptions != null) cfg.extraOptions )
