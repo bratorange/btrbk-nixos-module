@@ -31,6 +31,9 @@ let
   convertLists =
     subentry: subentryType: map (entry: subentryType + " " + entry) subentry;
 
+  convertString =
+    subentry: subentryType: [ (subentryType + " " + subentry) ];
+
   checkForSubAttrs =
     listOrAttrs: builtins.isAttrs listOrAttrs;
 
@@ -50,9 +53,16 @@ let
     volumeEntry: subsectionType:
       let 
         subsectionEntry = builtins.getAttr (subsectionType + "s") volumeEntry;
-        converter = if (checkForSubAttrs subsectionEntry) then convertEntrys else convertLists;
+        converter =
+          # isolate the case, that a subentry was written as a single string
+          if (isString subsectionEntry) then convertString
+          else
+          # differentiate whether a simple list is used, or if extra options a used for the subentry
+          (if (checkForSubAttrs subsectionEntry) then convertEntrys else convertLists);
       in
         list2lines (addPrefixes (converter (builtins.deepSeq subsectionEntry subsectionEntry) subsectionType));
+
+  subsectionDataType = with types; either (either (listOf str) (attrsOf lines)) str;
 
   extraOptions = mkOption {
     type = with types; nullOr lines;
@@ -72,7 +82,7 @@ let
       options = {
         inherit extraOptions;
         subvolumes = mkOption {
-            type = with types; either (listOf str) (attrsOf lines);
+            type = subsectionDataType;
             default = [];
             example = ''[ "/home/user/important_data" ]'';
             description = ''
@@ -80,8 +90,8 @@ let
             '';
         };
         targets = mkOption {
-          # TODO single argument syntactical sugar
-          type = with types; either (listOf str) (attrsOf lines);
+          # TODO implement the only string variant
+          type = subsectionDataType;
           default = [];
           example = ''[ "/mount/backup_drive" ]'';
           description = ''
