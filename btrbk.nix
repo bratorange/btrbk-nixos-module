@@ -70,9 +70,7 @@ let
     example = ''
       snapshot_dir           btrbk_snapshots
     '';
-    description = ''
-      Extra options which influence how a backup is stored. See digint.ch/btrbk/doc/btrbk.conf.5.html under Options for more information.
-    '';
+    description = "Extra options which influence how a backup is stored. See digint.ch/btrbk/doc/btrbk.conf.5.html under Options for more information.";
   };
 
   # map the sections part of the btrbk config into a the module
@@ -84,19 +82,14 @@ let
         subvolumes = mkOption {
             type = subsectionDataType;
             default = [];
-            example = ''[ "/home/user/important_data" ]'';
-            description = ''
-              A list of subvolumes which should be backed up.
-            '';
+            example = [ "/home/user/important_data" "/mount/even_more_important_data"];
+            description = "A list of subvolumes which should be backed up.";
         };
         targets = mkOption {
-          # TODO implement the only string variant
           type = subsectionDataType;
           default = [];
           example = ''[ "/mount/backup_drive" ]'';
-          description = ''
-            A list of targets where backups of this volume should be stored.
-          '';
+          description = "A list of targets where backups of this volume should be stored.";
         };
       };
   });
@@ -105,15 +98,20 @@ let
       enable = mkOption {
         type = types.bool;
         default = false;
-        description = ''
-          Enable the btrbk backup utility for btrfs based file systems.
-        '';
+        description = "Enable the btrbk backup utility for btrfs based file systems.";
       };
       inherit extraOptions;
       volumes = mkOption {
         type = with types; attrsOf (submodule volume_submodule);
         default = { };
-        # TODO write description and example
+        description = "The configuration for a specific volume. The key of each entry is a string, reflecting the path of that volume.";
+        example = {
+         "/mount/btrfs_volumes" =
+          {
+            subvolumes = [ "btrfs_volume/important_files" ];
+            targets = [ "/mount/backup_drive" ];
+          };
+        };
       };
     };
 
