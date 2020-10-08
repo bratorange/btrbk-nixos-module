@@ -1,7 +1,6 @@
 { config, lib, pkgs, ... }:
 
 with lib;
-with debug;
 
 let
   cfg = config.programs.btrbk;
@@ -9,12 +8,14 @@ let
   list2lines =
     inputList: (builtins.concatStringsSep "\n" inputList) + "\n";
 
+  # TODO use a regex instead?
   lines2list =
     inputLines: builtins.filter isString (builtins.split "\n" inputLines);
 
   addPrefixes =
     lines: map (line: "  " + line) lines;
 
+  # TODO Use mapAttrsToList instead
   setToNameValuePairs = 
     entrys: map (name:
       {
@@ -34,9 +35,6 @@ let
   convertString =
     subentry: subentryType: [ (subentryType + " " + subentry) ];
 
-  checkForSubAttrs =
-    listOrAttrs: builtins.isAttrs listOrAttrs;
-
   renderVolumes =
     list2lines (map (pair: 
       # volume head line
@@ -55,10 +53,10 @@ let
         subsectionEntry = builtins.getAttr (subsectionType + "s") volumeEntry;
         converter =
           # isolate the case, that a subentry was written as a single string
-          if (isString subsectionEntry) then convertString
+          if isString subsectionEntry then convertString
           else
           # differentiate whether a simple list is used, or if extra options a used for the subentry
-          (if (checkForSubAttrs subsectionEntry) then convertEntrys else convertLists);
+          (if (builtins.isAttrs subsectionEntry) then convertEntrys else convertLists);
       in
         list2lines (addPrefixes (converter (builtins.deepSeq subsectionEntry subsectionEntry) subsectionType));
 
@@ -74,7 +72,7 @@ let
   };
 
   # map the sections part of the btrbk config into a the module
-  volume_submodule =
+  volumeSubmodule =
     ({name, config, ... }:
     {
       options = {
@@ -102,7 +100,7 @@ let
       };
       inherit extraOptions;
       volumes = mkOption {
-        type = with types; attrsOf (submodule volume_submodule);
+        type = with types; attrsOf (submodule volumeSubmodule);
         default = { };
         description = "The configuration for a specific volume. The key of each entry is a string, reflecting the path of that volume.";
         example = {
@@ -120,7 +118,7 @@ let
       environment.systemPackages = [ pkgs.btrbk ];
       environment.etc."btrbk/btrbk.conf" = {
         source = pkgs.writeText "btrbk.conf"
-          (( optionalString (cfg.extraOptions != null) cfg.extraOptions )
+          (( optionalString (cfg.extraOptions != null) cfg.extraOptions ) + "\n"
             + renderVolumes);
       };
     };
