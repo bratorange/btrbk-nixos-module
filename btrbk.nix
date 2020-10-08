@@ -15,15 +15,6 @@ let
   addPrefixes =
     lines: map (line: "  " + line) lines;
 
-  # TODO Use mapAttrsToList instead
-  setToNameValuePairs = 
-    entrys: map (name:
-      {
-        name = name;
-        value = entrys."${name}";
-      })
-    (builtins.attrNames entrys);
-
   convertEntrys =
     subentry: subentryType: builtins.concatLists (
       map (entry: [(subentryType + " " + entry)] ++ (addPrefixes (lines2list subentry."${entry}")))
@@ -36,16 +27,16 @@ let
     subentry: subentryType: [ (subentryType + " " + subentry) ];
 
   renderVolumes =
-    list2lines (map (pair: 
+    list2lines (mapAttrsToList (name: value: 
       # volume head line
-      "volume " + pair.name + "\n" 
+      "volume " + name + "\n" 
       # volume extra options
-      + (list2lines (addPrefixes (lines2list pair.value.extraOptions))) 
+      + (list2lines (addPrefixes (lines2list value.extraOptions))) 
       # volume subvolumes which should be backed up
-      + (renderSubsection pair.value "subvolume") 
+      + (renderSubsection value "subvolume") 
       # volume backup targets
-      + (renderSubsection pair.value "target"))
-    (setToNameValuePairs cfg.volumes));
+      + (renderSubsection value "target"))
+    cfg.volumes);
 
   renderSubsection =
     volumeEntry: subsectionType:
