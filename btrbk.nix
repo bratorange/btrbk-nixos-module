@@ -8,7 +8,6 @@ let
   list2lines =
     inputList: (builtins.concatStringsSep "\n" inputList) + "\n";
 
-  # TODO use a regex instead?
   lines2list =
     inputLines: builtins.filter isString (builtins.split "\n" inputLines);
 
