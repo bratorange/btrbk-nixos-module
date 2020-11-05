@@ -9,7 +9,8 @@ let
     inputList: (builtins.concatStringsSep "\n" inputList) + "\n";
 
   lines2list =
-    inputLines: builtins.filter isString (builtins.split "\n" inputLines);
+    inputLines: if inputLines==null then [] else
+    builtins.filter isString (builtins.split "\n" inputLines);
 
   addPrefixes =
     lines: map (line: "  " + line) lines;
@@ -48,6 +49,7 @@ let
           # differentiate whether a simple list is used, or if extra options a used for the subentry
           (if (builtins.isAttrs subsectionEntry) then convertEntrys else convertLists);
       in
+      # TODO remove deepSeq
         list2lines (addPrefixes (converter (builtins.deepSeq subsectionEntry subsectionEntry) subsectionType));
 
   subsectionDataType = with types; either (either (listOf str) (attrsOf lines)) str;
