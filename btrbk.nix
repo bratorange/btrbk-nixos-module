@@ -26,12 +26,17 @@ let
   convertString =
     subentry: subentryType: [ (subentryType + " " + subentry) ];
 
+  # renderOptionalString :: (types.nullOr string) -> (string -> string) -> string
+  renderOptionalString = 
+    value: converter: optionalString (value != null) (converter value);
+
   renderVolumes =
     list2lines (mapAttrsToList (name: value: 
       # volume head line
       "volume " + name + "\n" 
-      # volume extra options
-      + (list2lines (addPrefixes (lines2list value.extraOptions))) 
+      # TODO remove unnecessary cr's
+      # volume options
+      + (list2lines (addPrefixes (lines2list (renderUniversalOptions value)))) 
       # volume subvolumes which should be backed up
       + (renderSubsection value "subvolume") 
       # volume backup targets
@@ -54,14 +59,22 @@ let
 
   subsectionDataType = with types; either (either (listOf str) (attrsOf lines)) str;
 
+  ########## Option Section ############
+  snapshotDir = mkOption {
+    type = string;
+    default = "btrbk_snapshots"; 
+    description = "Directory where snapshots of the fs will be stored. Must be given relative to individual volume-directory.";
+  };
   extraOptions = mkOption {
     type = with types; nullOr lines;
     default = null;
-    example = ''
-      snapshot_dir           btrbk_snapshots
-    '';
-    description = "Extra options which influence how a backup is stored. See digint.ch/btrbk/doc/btrbk.conf.5.html under Options for more information.";
+    description = "Extra options which influence how a backup is stored. See digint.ch/btrbk/doc/btrbk.conf.5.html under 'Options' for more information.";
   };
+  # we will name options which may appear in all sections 'universal options'
+  # renderUniversalOptions :: attrs -> lines
+  renderUniversalOptions = 
+  options: renderOptionalString options.extraOptions (x: x);
+  ########## Option Section ############
 
   # map the sections part of the btrbk config into a the module
   volumeSubmodule =
@@ -110,7 +123,7 @@ let
       environment.systemPackages = [ pkgs.btrbk ];
       environment.etc."btrbk/btrbk.conf" = {
         source = pkgs.writeText "btrbk.conf"
-          (( optionalString (cfg.extraOptions != null) cfg.extraOptions ) + "\n"
+          ( renderUniversalOptions cfg
             + renderVolumes);
       };
     };
