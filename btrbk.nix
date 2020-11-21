@@ -61,9 +61,14 @@ let
 
   ########## Option Section ############
   snapshotDir = mkOption {
-    type = string;
+    type = types.str;
     default = "btrbk_snapshots"; 
     description = "Directory where snapshots of the fs will be stored. Must be given relative to individual volume-directory.";
+  };
+  timestampFormat = mkOption {
+    type = types.enum [ "short" "long" "long-iso" ];
+    default = short;
+    description = "Timestamp format used as a suffix for new snapshot modules. 'short' only keeps track of the date, 'long' also tracks the time of day and 'long-iso' will also prevent issues with backups made during a time shift."
   };
   extraOptions = mkOption {
     type = with types; nullOr lines;
@@ -72,8 +77,10 @@ let
   };
   # we will name options which may appear in all sections 'universal options'
   # renderUniversalOptions :: attrs -> lines
-  renderUniversalOptions = 
-  options: renderOptionalString options.extraOptions (x: x);
+  renderUniversalOptions = options:
+      renderOptionalString options.snapshotDir (x: "snapshot_dir  " + x) + "\n"
+    + renderOptionalString options.timestampFormat (x: "timestamp_format  " + x) + "\n"
+    + renderOptionalString options.extraOptions (x: x);
   ########## Option Section ############
 
   # map the sections part of the btrbk config into a the module
@@ -81,7 +88,7 @@ let
     ({name, config, ... }:
     {
       options = {
-        inherit extraOptions;
+        inherit snapshotDir extraOptions timestampFormat;
         subvolumes = mkOption {
             type = subsectionDataType;
             default = [];
@@ -103,7 +110,7 @@ let
         default = false;
         description = "Enable the btrbk backup utility for btrfs based file systems.";
       };
-      inherit extraOptions;
+      inherit snapshotDir extraOptions timestampFormat;
       volumes = mkOption {
         type = with types; attrsOf (submodule volumeSubmodule);
         default = { };
