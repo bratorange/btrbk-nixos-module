@@ -36,7 +36,7 @@ let
       "volume " + name + "\n" 
       # TODO remove unnecessary cr's
       # volume options
-      + (list2lines (addPrefixes (lines2list (renderUniversalOptions value)))) 
+      + (list2lines (addPrefixes (lines2list (renderOptions value)))) 
       # volume subvolumes which should be backed up
       + (renderSubsection value "subvolume") 
       # volume backup targets
@@ -67,20 +67,29 @@ let
   };
   timestampFormat = mkOption {
     type = types.enum [ "short" "long" "long-iso" ];
-    default = short;
-    description = "Timestamp format used as a suffix for new snapshot modules. 'short' only keeps track of the date, 'long' also tracks the time of day and 'long-iso' will also prevent issues with backups made during a time shift."
+    default = "short";
+    description = "Timestamp format used as a suffix for new snapshot modules. 'short' only keeps track of the date, 'long' also tracks the time of day and 'long-iso' will also prevent issues with backups made during a time shift.";
   };
   extraOptions = mkOption {
     type = with types; nullOr lines;
     default = null;
     description = "Extra options which influence how a backup is stored. See digint.ch/btrbk/doc/btrbk.conf.5.html under 'Options' for more information.";
   };
-  # we will name options which may appear in all sections 'universal options'
-  # renderUniversalOptions :: attrs -> lines
-  renderUniversalOptions = options:
-      renderOptionalString options.snapshotDir (x: "snapshot_dir  " + x) + "\n"
-    + renderOptionalString options.timestampFormat (x: "timestamp_format  " + x) + "\n"
-    + renderOptionalString options.extraOptions (x: x);
+  
+  # Since nix has the camel case style convention but the btrbk config options are using snake case, we will need a mapping.
+  nameMappings = {
+     snapshotDir = "snapshot_dir";
+     timestampFormat = "timestamp_format";
+     extraOptions = "extra_options";
+  };
+
+  # renderOptions :: attrs -> lines
+  renderOptions = options:
+    mapAttrsToList(
+        # Defining the mapping function
+        name: value:
+          renderOptionalString value (x: (builtins.getAttr name nameMappings) + "  " + x + "\n")
+      ) options;
   ########## Option Section ############
 
   # map the sections part of the btrbk config into a the module
@@ -88,7 +97,7 @@ let
     ({name, config, ... }:
     {
       options = {
-        inherit snapshotDir extraOptions timestampFormat;
+        inherit snapshot_dir extra_options timestamp_format;
         subvolumes = mkOption {
             type = subsectionDataType;
             default = [];
@@ -110,7 +119,7 @@ let
         default = false;
         description = "Enable the btrbk backup utility for btrfs based file systems.";
       };
-      inherit snapshotDir extraOptions timestampFormat;
+      inherit snapshot_dir extra_options timestamp_format;
       volumes = mkOption {
         type = with types; attrsOf (submodule volumeSubmodule);
         default = { };
@@ -130,7 +139,7 @@ let
       environment.systemPackages = [ pkgs.btrbk ];
       environment.etc."btrbk/btrbk.conf" = {
         source = pkgs.writeText "btrbk.conf"
-          ( renderUniversalOptions cfg
+          ( renderOptions cfg
             + renderVolumes);
       };
     };
