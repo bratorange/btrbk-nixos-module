@@ -61,13 +61,13 @@ let
 
   ########## Option Section ############
   snapshotDir = mkOption {
-    type = types.str;
-    default = "btrbk_snapshots"; 
+    type = types.nullOr types.str;
+    default = null; 
     description = "Directory where snapshots of the fs will be stored. Must be given relative to individual volume-directory.";
   };
   timestampFormat = mkOption {
-    type = types.enum [ "short" "long" "long-iso" ];
-    default = "short";
+    type = types.nullOr (types.enum [ "short" "long" "long-iso" ]);
+    default = null;
     description = "Timestamp format used as a suffix for new snapshot modules. 'short' only keeps track of the date, 'long' also tracks the time of day and 'long-iso' will also prevent issues with backups made during a time shift.";
   };
   extraOptions = mkOption {

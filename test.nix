@@ -14,9 +14,7 @@ in
       environment.systemPackages = with pkgs; [ btrfs-progs ];
       programs.btrbk = {
         enable = true;
-        extraOptions =''
-          snapshot_dir  ${snapshotDir}
-        '';
+        inherit snapshotDir;
           volumes."${btrfsRoot}" = {
             subvolumes = [ dataDir ];
             targets = [ backupDir ];
