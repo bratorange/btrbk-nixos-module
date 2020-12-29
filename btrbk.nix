@@ -77,19 +77,21 @@ let
   };
   
   # Since nix has the camel case style convention but the btrbk config options are using snake case, we will need a mapping.
-  nameMappings = {
+  optionMappings = {
      snapshotDir = "snapshot_dir";
      timestampFormat = "timestamp_format";
-     extraOptions = "extra_options";
   };
 
   # renderOptions :: attrs -> lines
   renderOptions = options:
-    mapAttrsToList(
+    list2lines(
+      mapAttrsToList(
         # Defining the mapping function
         name: value:
-          renderOptionalString value (x: (builtins.getAttr name nameMappings) + "  " + x + "\n")
-      ) options;
+          renderOptionalString value (x: (builtins.getAttr name optionMappings) + "  " + x + "\n")
+      )
+      (filterAttrs (name: value: builtins.hasAttr name optionMappings) options))
+      + optionalString (options.extraOptions != null) options.extraOptions;
   ########## Option Section ############
 
   # map the sections part of the btrbk config into a the module
@@ -97,7 +99,7 @@ let
     ({name, config, ... }:
     {
       options = {
-        inherit snapshot_dir extra_options timestamp_format;
+        inherit snapshotDir extraOptions timestampFormat;
         subvolumes = mkOption {
             type = subsectionDataType;
             default = [];
@@ -119,7 +121,7 @@ let
         default = false;
         description = "Enable the btrbk backup utility for btrfs based file systems.";
       };
-      inherit snapshot_dir extra_options timestamp_format;
+      inherit snapshotDir extraOptions timestampFormat;
       volumes = mkOption {
         type = with types; attrsOf (submodule volumeSubmodule);
         default = { };
