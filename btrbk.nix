@@ -1,19 +1,11 @@
 { config, lib, pkgs, ... }:
 
 with lib;
+with import ./btrbkOptions.nix {inherit config lib pkgs;};
+with import ./btrbkHelpers.nix;
 
 let
   cfg = config.programs.btrbk;
-
-  list2lines =
-    inputList: (builtins.concatStringsSep "\n" inputList) + "\n";
-
-  lines2list =
-    inputLines: if inputLines==null then [] else
-    builtins.filter isString (builtins.split "\n" inputLines);
-
-  addPrefixes =
-    lines: map (line: "  " + line) lines;
 
   convertEntrys =
     subentry: subentryType: builtins.concatLists (
@@ -25,10 +17,6 @@ let
 
   convertString =
     subentry: subentryType: [ (subentryType + " " + subentry) ];
-
-  # renderOptionalString :: (types.nullOr string) -> (string -> string) -> string
-  renderOptionalString = 
-    value: converter: optionalString (value != null) (converter value);
 
   renderVolumes =
     list2lines (mapAttrsToList (name: value: 
@@ -59,40 +47,6 @@ let
 
   subsectionDataType = with types; either (either (listOf str) (attrsOf lines)) str;
 
-  ########## Option Section ############
-  snapshotDir = mkOption {
-    type = types.nullOr types.str;
-    default = null; 
-    description = "Directory where snapshots of the fs will be stored. Must be given relative to individual volume-directory.";
-  };
-  timestampFormat = mkOption {
-    type = types.nullOr (types.enum [ "short" "long" "long-iso" ]);
-    default = null;
-    description = "Timestamp format used as a suffix for new snapshot modules. 'short' only keeps track of the date, 'long' also tracks the time of day and 'long-iso' will also prevent issues with backups made during a time shift.";
-  };
-  extraOptions = mkOption {
-    type = with types; nullOr lines;
-    default = null;
-    description = "Extra options which influence how a backup is stored. See digint.ch/btrbk/doc/btrbk.conf.5.html under 'Options' for more information.";
-  };
-  
-  # Since nix has the camel case style convention but the btrbk config options are using snake case, we will need a mapping.
-  optionMappings = {
-     snapshotDir = "snapshot_dir";
-     timestampFormat = "timestamp_format";
-  };
-
-  # renderOptions :: attrs -> lines
-  renderOptions = options:
-    list2lines(
-      mapAttrsToList(
-        # Defining the mapping function
-        name: value:
-          renderOptionalString value (x: (builtins.getAttr name optionMappings) + "  " + x + "\n")
-      )
-      (filterAttrs (name: value: builtins.hasAttr name optionMappings) options))
-      + optionalString (options.extraOptions != null) options.extraOptions;
-  ########## Option Section ############
 
   # map the sections part of the btrbk config into a the module
   volumeSubmodule =
