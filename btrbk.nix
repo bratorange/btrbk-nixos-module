@@ -49,7 +49,6 @@ let
           }))
         );
 
-
   # map the sections part of the btrbk config into a the module
   volumeSubmodule =
     ({name, config, ... }:
