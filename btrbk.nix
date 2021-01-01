@@ -9,7 +9,7 @@ let
 
   convertEntrys =
     subentry: subentryType: builtins.concatLists (
-      map (entry: [(subentryType + " " + entry)] ++ (addPrefixes (lines2list subentry."${entry}")))
+      map (entry: [(subentryType + " " + entry)] ++ (addPrefixes (lines2list (renderOptions subentry."${entry}"))))
       (builtins.attrNames subentry));
   
   convertLists =
@@ -36,16 +36,20 @@ let
       let 
         subsectionEntry = builtins.getAttr (subsectionType + "s") volumeEntry;
         converter =
-          # isolate the case, that a subentry was written as a single string
-          if isString subsectionEntry then convertString
-          else
           # differentiate whether a simple list is used, or if extra options a used for the subentry
-          (if (builtins.isAttrs subsectionEntry) then convertEntrys else convertLists);
+          if (builtins.isAttrs subsectionEntry) then convertEntrys else convertLists;
       in
       # TODO remove deepSeq
         list2lines (addPrefixes (converter (builtins.deepSeq subsectionEntry subsectionEntry) subsectionType));
 
-  subsectionDataType = with types; either (either (listOf str) (attrsOf lines)) str;
+        subsectionDataType = with types; either (listOf str) (attrsOf (submodule
+          ({name, config, ...}:
+          {
+            options = {
+              inherit snapshotDir extraOptions timestampFormat;
+            };
+          }))
+        );
 
 
   # map the sections part of the btrbk config into a the module
