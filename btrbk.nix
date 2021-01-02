@@ -42,12 +42,10 @@ let
       # TODO remove deepSeq
         list2lines (addPrefixes (converter (builtins.deepSeq subsectionEntry subsectionEntry) subsectionType));
 
-        subsectionDataType = with types; either (listOf str) (attrsOf (submodule
+        subsectionDataType = options: with types; either (listOf str) (attrsOf (submodule
           ({name, config, ...}:
           {
-            options = {
-              inherit snapshotDir extraOptions timestampFormat;
-            };
+            inherit options;
           }))
         );
 
@@ -59,13 +57,14 @@ let
       options = {
         inherit snapshotDir extraOptions timestampFormat;
         subvolumes = mkOption {
-            type = subsectionDataType;
+            type = subsectionDataType {inherit snapshotDir extraOptions timestampFormat;};
             default = [];
             example = [ "/home/user/important_data" "/mount/even_more_important_data"];
             description = "A list of subvolumes which should be backed up.";
         };
         targets = mkOption {
-          type = subsectionDataType;
+          # TODO check if target rarely has any config options
+          type = subsectionDataType {inherit extraOptions;};
           default = [];
           example = ''[ "/mount/backup_drive" ]'';
           description = "A list of targets where backups of this volume should be stored.";
