@@ -51,9 +51,9 @@ let
 
   # renderOptions :: attrs -> lines
   renderOptions = options:
-  with builtins; with debug; list2lines (traceVal (concatLists (traceValSeq (attrValues 
-  (filterAttrs (name: value: builtins.hasAttr name btrbkOptions) options)
-  ))));
+  with builtins; list2lines (concatLists (attrValues 
+    (filterAttrs (name: value: builtins.hasAttr name btrbkOptions) options)
+  ));
 
 
   # map the sections part of the btrbk config into a the module

@@ -6,9 +6,9 @@ with import ./btrbkHelpers.nix;
 let
   conversions = {
     valueIdentityPair = keyName: value:
-      [ (optionalString (value != null) (keyName + "  " + value)) ];
+      if (value != null) then [ (keyName + "  " + value) ] else [];
 
-    customLines = value: lines2list value;
+    customLines = value: if (value != null) then (lines2list value) else [];
   };
 in 
 {
