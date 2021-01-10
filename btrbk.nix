@@ -39,8 +39,7 @@ let
           # differentiate whether a simple list is used, or if extra options a used for the subentry
           if (builtins.isAttrs subsectionEntry) then convertEntrys else convertLists;
       in
-      # TODO remove deepSeq
-        list2lines (addPrefixes (converter (builtins.deepSeq subsectionEntry subsectionEntry) subsectionType));
+        list2lines (addPrefixes (converter subsectionEntry subsectionType));
 
         subsectionDataType = options: with types; either (listOf str) (attrsOf (submodule
           ({name, config, ...}:
