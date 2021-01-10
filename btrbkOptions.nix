@@ -6,7 +6,7 @@ with import ./btrbkHelpers.nix;
 let
   conversions = {
     valueIdentityPair = keyName: value:
-      [ (optionalString (value != null) (keyname + "  " + value)) ];
+      [ (optionalString (value != null) (keyName + "  " + value)) ];
 
     customLines = value: lines2list value;
   };
@@ -32,16 +32,4 @@ in
     description = "Extra options which influence how a backup is stored. See digint.ch/btrbk/doc/btrbk.conf.5.html under 'Options' for more information.";
     apply = conversions.customLines;
   };
-  
-
-  # renderOptions :: attrs -> lines
-  renderOptions = options:
-    list2lines(
-      mapAttrsToList(
-        # Defining the mapping function
-        name: value:
-          optionalString (value != null) ((builtins.getAttr name optionMappings) + "  " + value)
-      )
-      (filterAttrs (name: value: builtins.hasAttr name optionMappings) options))
-      + optionalString (options.extraOptions != null) options.extraOptions;
 }
