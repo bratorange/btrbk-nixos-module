@@ -61,7 +61,7 @@ let
       options = {
         inherit (btrbkOptions) snapshotDir extraOptions timestampFormat;
         subvolumes = mkOption {
-            type = subsectionDataType {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat;};
+            type = subsectionDataType {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotName;};
             default = [];
             example = [ "/home/user/important_data" "/mount/even_more_important_data"];
             description = "A list of subvolumes which should be backed up.";

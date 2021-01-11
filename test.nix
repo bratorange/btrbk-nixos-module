@@ -3,6 +3,7 @@ let
   backupDir = "/run/backup";
   snapshotDir = "snapshots";
   dataDir = "data";
+  dataDirName = "all_my_data";
   testData = "testdata";
 in
   import <nixpkgs/nixos/tests/make-test-python.nix> {
@@ -16,7 +17,11 @@ in
         enable = true;
         inherit snapshotDir;
           volumes."${btrfsRoot}" = {
-            subvolumes = { "${dataDir}" = {inherit snapshotDir;}; };
+            subvolumes = { "${dataDir}" = {
+                  inherit snapshotDir;
+                  snapshotName = dataDirName;
+                };
+              };
             targets = [ backupDir ]; 
             extraOptions = [ "# test line 1" "# test line 2" ];
           };
@@ -46,7 +51,7 @@ in
         machine.succeed("btrbk run 1>&2")
 
         # TODO fix this
-        output = machine.succeed("cat ${backupDir}/${dataDir}*/*")
+        output = machine.succeed("cat ${backupDir}/${dataDirName}*/*")
         if "${testData}" == output:
             raise Exception("backup didnt work")
       '';
