@@ -9,7 +9,7 @@ let
 
   convertEntrys =
     subentry: subentryType: builtins.concatLists (
-      map (entry: [(subentryType + " " + entry)] ++ (addPrefixes (lines2list (renderOptions subentry."${entry}"))))
+      map (entry: [(subentryType + " " + entry)] ++ (addPrefixes (renderOptions subentry."${entry}")))
       (builtins.attrNames subentry));
   
   convertLists =
@@ -18,17 +18,16 @@ let
   convertString =
     subentry: subentryType: [ (subentryType + " " + subentry) ];
 
-  renderVolumes =
-    list2lines (mapAttrsToList (name: value: 
+  renderVolumes = builtins.concatLists (
+    mapAttrsToList (name: value: 
       # volume head line
-      "volume " + name + "\n" 
-      # TODO remove unnecessary cr's
+      [ ("volume " + name) ]
       # volume options
-      + (list2lines (addPrefixes (lines2list (renderOptions value)))) 
+      ++ (addPrefixes (renderOptions value)) 
       # volume subvolumes which should be backed up
-      + (renderSubsection value "subvolume") 
+      ++ (renderSubsection value "subvolume") 
       # volume backup targets
-      + (renderSubsection value "target"))
+      ++ (renderSubsection value "target"))
     cfg.volumes);
 
   renderSubsection =
@@ -39,7 +38,7 @@ let
           # differentiate whether a simple list is used, or if extra options a used for the subentry
           if (builtins.isAttrs subsectionEntry) then convertEntrys else convertLists;
       in
-        list2lines (addPrefixes (converter subsectionEntry subsectionType));
+        (addPrefixes (converter subsectionEntry subsectionType));
 
         subsectionDataType = options: with types; either (listOf str) (attrsOf (submodule
           ({name, config, ...}:
@@ -48,11 +47,11 @@ let
           }))
         );
 
-  # renderOptions :: attrs -> lines
+  # renderOptions :: attrs -> list
   renderOptions = options:
-  with builtins; list2lines (concatLists (attrValues 
+  with builtins; concatLists (attrValues 
     (filterAttrs (name: value: builtins.hasAttr name btrbkOptions) options)
-  ));
+  );
 
 
   # map the sections part of the btrbk config into a the module
@@ -103,8 +102,8 @@ let
       environment.systemPackages = [ pkgs.btrbk ];
       environment.etc."btrbk/btrbk.conf" = {
         source = pkgs.writeText "btrbk.conf"
-          ( renderOptions cfg
-            + renderVolumes);
+          ( (debug.traceValSeq (list2lines (renderOptions cfg)))
+            + (list2lines (debug.traceValSeq renderVolumes)));
       };
     };
   }
