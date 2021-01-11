@@ -102,8 +102,8 @@ let
       environment.systemPackages = [ pkgs.btrbk ];
       environment.etc."btrbk/btrbk.conf" = {
         source = pkgs.writeText "btrbk.conf"
-          ( (debug.traceValSeq (list2lines (renderOptions cfg)))
-            + (list2lines (debug.traceValSeq renderVolumes)));
+          ( (list2lines (renderOptions cfg))
+            + (list2lines renderVolumes));
       };
     };
   }
