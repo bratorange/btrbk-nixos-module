@@ -18,6 +18,7 @@ in
           volumes."${btrfsRoot}" = {
             subvolumes = { "${dataDir}" = {inherit snapshotDir;}; };
             targets = [ backupDir ]; 
+            extraOptions = [ "# test line 1" "# test line 2" ];
           };
       };
     };

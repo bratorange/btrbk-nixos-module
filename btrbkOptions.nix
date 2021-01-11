@@ -8,7 +8,7 @@ let
     valueIdentityPair = keyName: value:
       if (value != null) then [ (keyName + "  " + value) ] else [];
 
-    customLines = value: if (value != null) then (lines2list value) else [];
+    customList = value: if (value != null) then value else [];
   };
 in 
 {
@@ -27,9 +27,9 @@ in
   };
 
   extraOptions = mkOption {
-    type = with types; nullOr lines;
+    type = with types; nullOr (listOf str);
     default = null;
     description = "Extra options which influence how a backup is stored. See digint.ch/btrbk/doc/btrbk.conf.5.html under 'Options' for more information.";
-    apply = conversions.customLines;
+    apply = conversions.customList;
   };
 }
