@@ -59,9 +59,9 @@ let
     ({name, config, ... }:
     {
       options = {
-        inherit (btrbkOptions) snapshotDir extraOptions timestampFormat;
+        inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate;
         subvolumes = mkOption {
-            type = subsectionDataType {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotName;};
+            type = subsectionDataType {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotName snapshotCreate;};
             default = [];
             example = [ "/home/user/important_data" "/mount/even_more_important_data"];
             description = "A list of subvolumes which should be backed up.";
@@ -82,7 +82,7 @@ let
         default = false;
         description = "Enable the btrbk backup utility for btrfs based file systems.";
       };
-      inherit (btrbkOptions) snapshotDir extraOptions timestampFormat;
+      inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate;
       volumes = mkOption {
         type = with types; attrsOf (submodule volumeSubmodule);
         default = { };

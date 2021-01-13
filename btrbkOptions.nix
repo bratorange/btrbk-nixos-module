@@ -40,4 +40,10 @@ in
     description = "Name of backup'ed subvolume inside the target. Only set if you want the backup have another name than the original subvolume";
     apply = conversions.valueIdentityPair "snapshot_name";
   };
+  snapshotCreate = mkOption {
+    type = nullOr (enum [ "always" "onchange" "ondemand" "no" ]);
+    default = null;
+    description = "When should snapshots be created. Always will allways create one, onchange if the subvolume has changed, ondemand if the target is available and no will never create a snapshot.";
+    apply = conversions.valueIdentityPair "snapshot_create";
+  };
 }

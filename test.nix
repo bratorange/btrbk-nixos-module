@@ -22,7 +22,7 @@ in
                   snapshotName = dataDirName;
                 };
               };
-            targets = [ backupDir ]; 
+            targets = { "${backupDir}" = {}; }; 
             extraOptions = [ "# test line 1" "# test line 2" ];
           };
       };
