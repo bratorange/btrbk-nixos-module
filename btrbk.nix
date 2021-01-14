@@ -59,16 +59,16 @@ let
     ({name, config, ... }:
     {
       options = {
-        inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental;
+        inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto;
         subvolumes = mkOption {
-            type = subsectionDataType {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotName snapshotCreate incremental;};
+            type = subsectionDataType {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotName snapshotCreate incremental noauto;};
             default = [];
             example = [ "/home/user/important_data" "/mount/even_more_important_data"];
             description = "A list of subvolumes which should be backed up.";
         };
         targets = mkOption {
           # TODO check if target rarely has any config options
-          type = subsectionDataType {inherit (btrbkOptions) extraOptions incremental;};
+          type = subsectionDataType {inherit (btrbkOptions) extraOptions incremental noauto;};
           default = [];
           example = ''[ "/mount/backup_drive" ]'';
           description = "A list of targets where backups of this volume should be stored.";
@@ -82,7 +82,7 @@ let
         default = false;
         description = "Enable the btrbk backup utility for btrfs based file systems.";
       };
-      inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental;
+      inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto;
       volumes = mkOption {
         type = with types; attrsOf (submodule volumeSubmodule);
         default = { };

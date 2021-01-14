@@ -10,6 +10,9 @@ let
       if (value != null) then [ (keyName + "  " + value) ] else [];
 
     customList = value: if (value != null) then value else [];
+
+    boolPair = keyName: value:
+      if (value != null) then [ (keyName + "  " + (if value then "yes" else "no")) ] else [];
   };
 in 
 {
@@ -54,5 +57,11 @@ in
     default = null;
     description = "Wether incremental backups will be created. No will only create full backups, yes will only create initial backups non-incremental and strict will only create incremental backups.";
     apply = conversions.valueIdentityPair "incremental";
+  };
+  
+  noauto = mkOption {
+     type = nullOr bool;
+     default = null;
+     apply = conversions.boolPair "noauto";
   };
 }
