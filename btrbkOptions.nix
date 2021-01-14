@@ -27,6 +27,7 @@ in
      apply = conversions.valueIdentityPair "timestamp_format";
   };
 
+  # change this back again to the lines option
   extraOptions = mkOption {
     type = nullOr (listOf str);
     default = null;
@@ -40,10 +41,18 @@ in
     description = "Name of backup'ed subvolume inside the target. Only set if you want the backup have another name than the original subvolume";
     apply = conversions.valueIdentityPair "snapshot_name";
   };
+
   snapshotCreate = mkOption {
     type = nullOr (enum [ "always" "onchange" "ondemand" "no" ]);
     default = null;
-    description = "When should snapshots be created. Always will allways create one, onchange if the subvolume has changed, ondemand if the target is available and no will never create a snapshot.";
+    description = "When should snapshots be created. 'Always' will allways create one, 'onchange' if the subvolume has changed, 'ondemand' if the target is available and 'no' will never create a snapshot.";
     apply = conversions.valueIdentityPair "snapshot_create";
+  };
+
+  incremental = mkOption {
+    type = nullOr (enum [ "yes" "no" "strict" ]);
+    default = null;
+    description = "Wether incremental backups will be created. No will only create full backups, yes will only create initial backups non-incremental and strict will only create incremental backups.";
+    apply = conversions.valueIdentityPair "incremental";
   };
 }
