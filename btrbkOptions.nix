@@ -64,4 +64,11 @@ in
      default = null;
      apply = conversions.boolPair "noauto";
   };
+
+  preserveDayOfWeek = mkOption {
+    type = nullOr (enum ["monday" "tuesday" "wednesday" "thursday" "friday" "saturday" "sunday" ] );
+    default = null;
+    description = "A snapshot done at this day will be considered as weekly. See 'Retention Policy' in 'man btrbk.conf' for more information on what that means.";
+    apply = conversions.valueIdentityPair "preserve_day_of_week";
+  };
 }
