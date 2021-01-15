@@ -7,6 +7,16 @@ let
   cfg = config.programs.btrbk;
   btrbkOptions = import ./btrbkOptions.nix {inherit config lib pkgs;};
 
+  optionSections = {
+    global = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek;};
+
+    subvolume = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotName snapshotCreate incremental noauto preserveDayOfWeek;};
+
+    target = {inherit (btrbkOptions) extraOptions incremental noauto preserveDayOfWeek;};
+
+    volume = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek;};
+  };
+
   convertEntrys =
     subentry: subentryType: builtins.concatLists (
       map (entry: [(subentryType + " " + entry)] ++ (addPrefixes (renderOptions subentry."${entry}")))
@@ -59,30 +69,28 @@ let
     ({name, config, ... }:
     {
       options = {
-        inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek;
         subvolumes = mkOption {
-            type = subsectionDataType {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotName snapshotCreate incremental noauto preserveDayOfWeek;};
+            type = subsectionDataType optionSections.subvolume;
             default = [];
             example = [ "/home/user/important_data" "/mount/even_more_important_data"];
             description = "A list of subvolumes which should be backed up.";
         };
         targets = mkOption {
           # TODO check if target rarely has any config options
-          type = subsectionDataType {inherit (btrbkOptions) extraOptions incremental noauto preserveDayOfWeek;};
+          type = subsectionDataType optionSections.target;
           default = [];
           example = ''[ "/mount/backup_drive" ]'';
           description = "A list of targets where backups of this volume should be stored.";
         };
-      };
+      } // optionSections.volume;
   });
   in {
-    options.programs.btrbk = {
+    options.programs.btrbk = ({
       enable = mkOption {
         type = types.bool;
         default = false;
         description = "Enable the btrbk backup utility for btrfs based file systems.";
       };
-      inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek;
       volumes = mkOption {
         type = with types; attrsOf (submodule volumeSubmodule);
         default = { };
@@ -95,7 +103,7 @@ let
           };
         };
       };
-    };
+    } // optionSections.global);
 
     ###### implementation
     config = mkIf cfg.enable {

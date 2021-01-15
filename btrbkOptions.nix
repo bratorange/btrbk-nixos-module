@@ -65,10 +65,20 @@ in
      apply = conversions.boolPair "noauto";
   };
 
+  # Retention Policy Options
   preserveDayOfWeek = mkOption {
     type = nullOr (enum ["monday" "tuesday" "wednesday" "thursday" "friday" "saturday" "sunday" ] );
     default = null;
     description = "A snapshot done at this day will be considered as weekly. See 'Retention Policy' in 'man btrbk.conf' for more information on what that means.";
     apply = conversions.valueIdentityPair "preserve_day_of_week";
   };
+
+  # SSH Options
+  sshIdentity = mkOption {
+    type = nullOr path;
+    default = "/user/.ssh/key";
+    description = "Absolute path to a ssh private key to authentificate at the target machine.";
+    apply = conversions.valueIdentityPair "ssh_identity";
+  };
+
 }
