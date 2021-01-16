@@ -76,16 +76,22 @@ in
   # SSH Options
   sshIdentity = mkOption {
     type = nullOr path;
-    default = "/user/.ssh/key";
+    default = null;
     description = "Absolute path to a ssh private key to authentificate at the target machine.";
     apply = conversions.valueIdentityPair "ssh_identity";
   };
 
   sshUser = mkOption {
     type = nullOr str;
-    default = "user";
+    default = null;
     description = "User on the target machine. Defaults to 'root'.";
     apply = conversions.valueIdentityPair "ssh_user";
   };
 
+  sshCompression = mkOption {
+    type = nullOr bool;
+    default = null;
+    description = "Enables or disables the compression of ssh connections. Defaults tofalse. Note that if streamCompress is enabled, ssh compression will always be disabled for send/receive operations.";
+    apply = conversions.boolPair "ssh_compression";
+  };
 }
