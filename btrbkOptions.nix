@@ -81,4 +81,11 @@ in
     apply = conversions.valueIdentityPair "ssh_identity";
   };
 
+  sshUser = mkOption {
+    type = nullOr str;
+    default = "user";
+    description = "User on the target machine. Defaults to 'root'.";
+    apply = conversions.valueIdentityPair "ssh_user";
+  };
+
 }
