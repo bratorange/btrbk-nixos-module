@@ -91,7 +91,14 @@ in
   sshCompression = mkOption {
     type = nullOr bool;
     default = null;
-    description = "Enables or disables the compression of ssh connections. Defaults tofalse. Note that if streamCompress is enabled, ssh compression will always be disabled for send/receive operations.";
+    description = "Enables or disables the compression of ssh connections. Defaults to false. Note that if streamCompress is enabled, ssh compression will always be disabled for send/receive operations.";
     apply = conversions.boolPair "ssh_compression";
+  };
+
+  sshCipherSpec = mkOption {
+    type = nullOr str;
+    default = null;
+    description = "Selects the cipher specification for encrypting the session (comma-separated list of ciphers in order of preference). See the '-c cipher_spec' option in ssh(1) for more information. Defaults to 'default' (the ciphers specified in ssh_config)";
+    apply = conversions.valueIdentityPair "ssh_cipher_spec";
   };
 }

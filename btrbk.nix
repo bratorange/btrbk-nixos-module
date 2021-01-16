@@ -8,13 +8,13 @@ let
   btrbkOptions = import ./btrbkOptions.nix {inherit config lib pkgs;};
 
   optionSections = {
-    global = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression;};
+    global = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec;};
 
-    subvolume = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotName snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression;};
+    subvolume = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotName snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec;};
 
-    target = {inherit (btrbkOptions) extraOptions incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression;};
+    target = {inherit (btrbkOptions) extraOptions incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec;};
 
-    volume = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression;};
+    volume = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec;};
   };
 
   convertEntrys =
