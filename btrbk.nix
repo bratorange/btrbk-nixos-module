@@ -76,7 +76,6 @@ let
             description = "A list of subvolumes which should be backed up.";
         };
         targets = mkOption {
-          # TODO check if target rarely has any config options
           type = subsectionDataType optionSections.target;
           default = [];
           example = ''[ "/mount/backup_drive" ]'';

@@ -12,7 +12,7 @@ let
     intToBoolPair = keyName: value:
       if (value != null) then [ (keyName + "  " + (toString value)) ] else [];
 
-    customList = value: if (value != null) then value else [];
+    customList = value: if (value != null) then filter isString (builtins.split "\n" value) else [];
 
     boolPair = keyName: value:
       if (value != null) then [ (keyName + "  " + (if value then "yes" else "no")) ] else [];
@@ -37,7 +37,7 @@ in
 
   # change this back again to the lines option
   extraOptions = mkOption {
-    type = nullOr (listOf str);
+    type = nullOr lines;
     default = null;
     description = "Extra options which influence how a backup is stored. See digint.ch/btrbk/doc/btrbk.conf.5.html under 'Options' for more information.";
     apply = conversions.customList;
@@ -80,7 +80,7 @@ in
 
   preserveHourOfDay = mkOption {
     type = nullOr (ints.between 0 23);
-    default = 5;
+    default = null;
     description = "Defines after what time (in full hours since midnight) a snapshot/backup is considered to be a 'daily' backup. Daily, weekly, monthly and yearly backups are preserved on this hour (see RETENTION POLICY in (man 5 btrbk.conf)). If you set this option, make sure to also set timestamp_format to 'long' or 'long-iso' (backups and snapshots having no time information will ignore this option). Defaults to '0'.";
     apply = conversions.intToBoolPair "preserve_hour_of_day";
   };
@@ -104,14 +104,14 @@ in
   targetPreserveMin = mkOption {
     type = nullOr (either (enum [ "all" "latest" "no" ]) (strMatching "[0-9]+[hdwmy]"));
     description = "Preserve all backups for a minimum amount of hours (h), days (d), weeks (w), months (m) or years (y), regardless of how many there are. If set to 'all', preserve all backups forever. If set to “latest”, always preserve the latest backup (useful in conjunction with 'targetPreserve = \"no\"', if you want to keep the latest backup only). If set to 'no', only the backups following the targetPreserve policy are created. Defaults to 'all'.";
-    default = "4w";
+    default = null;
     example = "5w";
     apply = conversions.valueIdentityPair "target_preserve_min";
   };
 
   targetPreserve = mkOption {
     type = nullOr (either (strMatching "no") retentionPolicy);
-    default = "no";
+    default = null;
     description = "Set retention policy for backups (see RETENTION POLICY in (man 5 btrbk.conf)). If set to 'no', preserve backups according to targetPreserve%in only. Defaults to 'no'.";
     example = "5d 4m *y";
     apply = conversions.valueIdentityPair "target_preserve";

@@ -20,11 +20,13 @@ in
             subvolumes = { "${dataDir}" = {
                   inherit snapshotDir;
                   snapshotName = dataDirName;
-                  snapshotPreserve = "*h 5d 5m 8y";
                 };
               };
             targets = { "${backupDir}" = {}; }; 
-            extraOptions = [ "# test line 1" "# test line 2" ];
+            extraOptions = ''
+              # test_line 1
+              # test_line 2
+            '';
           };
       };
     };
