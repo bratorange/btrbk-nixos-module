@@ -18,7 +18,7 @@ let
       if (value != null) then [ (keyName + "  " + (if value then "yes" else "no")) ] else [];
   };
 
-  retentionPolicy = strMatching "(((([0-9]+)|\\*)[hdmy])[ \t\n\r]*)+";
+  retentionPolicy = strMatching "(((([0-9]+)|\\*)[hdwmy])[ \t\n\r]*)+";
 in 
 {
   snapshotDir = mkOption {
@@ -91,6 +91,14 @@ in
     description = "Set retention policy for snapshots (see RETENTION POLICY in (man 5 btrbk.conf)). If set to 'no', preserve snapshots according to snapshotPreserveMin only. Defaults to 'no'.";
     example = "5d 4m *y";
     apply = conversions.valueIdentityPair "snapshot_preserve";
+  };
+
+  snapshotPreserveMin = mkOption {
+    type = nullOr (either (enum [ "all" "latest" "no" ]) (strMatching "[0-9]+[hdwmy]"));
+    description = "Preserve all backups for a minimum amount of hours (h), days (d), weeks (w), months (m) or years (y), regardless of how many there are. If set to 'all', preserve all backups forever. If set to “latest”, always preserve the latest backup (useful in conjunction with 'targetPreserve = \"no\"', if you want to keep the latest backup only). If set to 'no', only the backups following the targetPreserve policy are created. Defaults to 'all'.";
+    default = null;
+    example = "5w";
+    apply = conversions.valueIdentityPair "snapshot_preserve_min";
   };
 
   # SSH Options
