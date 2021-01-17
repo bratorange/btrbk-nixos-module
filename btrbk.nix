@@ -1,7 +1,6 @@
 { config, lib, pkgs, ... }:
 
 with lib;
-with import ./btrbkHelpers.nix;
 
 let
   cfg = config.programs.btrbk;
@@ -17,23 +16,28 @@ let
     volume = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay snapshotPreserve snapshotPreserveMin targetPreserve targetPreserveMin;};
   };
 
+  helpers = {
+    list2lines =
+      inputList: (concatStringsSep "\n" inputList) + "\n";
+
+    addPrefixes =
+      lines: map (line: "  " + line) lines;
+  };
+
   convertEntrys =
     subentry: subentryType: builtins.concatLists (
-      map (entry: [(subentryType + " " + entry)] ++ (addPrefixes (renderOptions subentry."${entry}")))
+      map (entry: [(subentryType + " " + entry)] ++ (helpers.addPrefixes (renderOptions subentry."${entry}")))
       (builtins.attrNames subentry));
   
   convertLists =
     subentry: subentryType: map (entry: subentryType + " " + entry) subentry;
-
-  convertString =
-    subentry: subentryType: [ (subentryType + " " + subentry) ];
 
   renderVolumes = builtins.concatLists (
     mapAttrsToList (name: value: 
       # volume head line
       [ ("volume " + name) ]
       # volume options
-      ++ (addPrefixes (renderOptions value)) 
+      ++ (helpers.addPrefixes (renderOptions value)) 
       # volume subvolumes which should be backed up
       ++ (renderSubsection value "subvolume") 
       # volume backup targets
@@ -48,7 +52,7 @@ let
           # differentiate whether a simple list is used, or if extra options a used for the subentry
           if (builtins.isAttrs subsectionEntry) then convertEntrys else convertLists;
       in
-        (addPrefixes (converter subsectionEntry subsectionType));
+        (helpers.addPrefixes (converter subsectionEntry subsectionType));
 
         subsectionDataType = options: with types; either (listOf str) (attrsOf (submodule
           ({name, config, ...}:
@@ -109,8 +113,8 @@ let
       environment.systemPackages = [ pkgs.btrbk ];
       environment.etc."btrbk/btrbk.conf" = {
         source = pkgs.writeText "btrbk.conf"
-          ( (list2lines (renderOptions cfg))
-            + (list2lines renderVolumes));
+          ( (helpers.list2lines (renderOptions cfg))
+            + (helpers.list2lines renderVolumes));
       };
     };
   }
