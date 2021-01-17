@@ -9,6 +9,9 @@ let
     valueIdentityPair = keyName: value:
       if (value != null) then [ (keyName + "  " + value) ] else [];
 
+    intToBoolPair = keyName: value:
+      if (value != null) then [ (keyName + "  " + (toString value)) ] else [];
+
     customList = value: if (value != null) then value else [];
 
     boolPair = keyName: value:
@@ -71,6 +74,13 @@ in
     default = null;
     description = "A snapshot done at this day will be considered as weekly. See 'Retention Policy' in 'man btrbk.conf' for more information on what that means.";
     apply = conversions.valueIdentityPair "preserve_day_of_week";
+  };
+
+  preserveHourOfDay = mkOption {
+    type = nullOr (ints.between 0 23);
+    default = 5;
+    description = "Defines after what time (in full hours since midnight) a snapshot/backup is considered to be a 'daily' backup. Daily, weekly, monthly and yearly backups are preserved on this hour (see RETENTION POLICY below). If you set this option, make sure to also set timestamp_format to 'long' or 'long-iso' (backups and snapshots having no time information will ignore this option). Defaults to '0'.";
+    apply = conversions.intToBoolPair "preserve_hour_of_day";
   };
 
   # SSH Options
