@@ -8,13 +8,13 @@ let
   btrbkOptions = import ./btrbkOptions.nix {inherit config lib pkgs;};
 
   optionSections = {
-    global = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay snapshotPreserve snapshotPreserveMin;};
+    global = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay snapshotPreserve snapshotPreserveMin targetPreserve targetPreserveMin;};
 
-    subvolume = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotName snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay snapshotPreserve snapshotPreserveMin;};
+    subvolume = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotName snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay snapshotPreserve snapshotPreserveMin targetPreserve targetPreserveMin;};
 
-    target = {inherit (btrbkOptions) extraOptions incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay;};
+    target = {inherit (btrbkOptions) extraOptions incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay targetPreserve targetPreserveMin;};
 
-    volume = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay snapshotPreserve snapshotPreserveMin;};
+    volume = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay snapshotPreserve snapshotPreserveMin targetPreserve targetPreserveMin;};
   };
 
   convertEntrys =

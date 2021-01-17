@@ -95,10 +95,26 @@ in
 
   snapshotPreserveMin = mkOption {
     type = nullOr (either (enum [ "all" "latest" "no" ]) (strMatching "[0-9]+[hdwmy]"));
-    description = "Preserve all backups for a minimum amount of hours (h), days (d), weeks (w), months (m) or years (y), regardless of how many there are. If set to 'all', preserve all backups forever. If set to “latest”, always preserve the latest backup (useful in conjunction with 'targetPreserve = \"no\"', if you want to keep the latest backup only). If set to 'no', only the backups following the targetPreserve policy are created. Defaults to 'all'.";
+    description = "Preserve all snapshots for a minimum amount of hours (h), days (d), weeks (w), months (m) or years (y), regardless of how many there are. If set to 'all', preserve all snapshots forever. If set to 'latest', preserve latest snapshot. Defaults to 'all'.";
     default = null;
     example = "5w";
     apply = conversions.valueIdentityPair "snapshot_preserve_min";
+  };
+
+  targetPreserveMin = mkOption {
+    type = nullOr (either (enum [ "all" "latest" "no" ]) (strMatching "[0-9]+[hdwmy]"));
+    description = "Preserve all backups for a minimum amount of hours (h), days (d), weeks (w), months (m) or years (y), regardless of how many there are. If set to 'all', preserve all backups forever. If set to “latest”, always preserve the latest backup (useful in conjunction with 'targetPreserve = \"no\"', if you want to keep the latest backup only). If set to 'no', only the backups following the targetPreserve policy are created. Defaults to 'all'.";
+    default = "4w";
+    example = "5w";
+    apply = conversions.valueIdentityPair "target_preserve_min";
+  };
+
+  targetPreserve = mkOption {
+    type = nullOr (either (strMatching "no") retentionPolicy);
+    default = "no";
+    description = "Set retention policy for backups (see RETENTION POLICY in (man 5 btrbk.conf)). If set to 'no', preserve backups according to targetPreserve%in only. Defaults to 'no'.";
+    example = "5d 4m *y";
+    apply = conversions.valueIdentityPair "target_preserve";
   };
 
   # SSH Options
