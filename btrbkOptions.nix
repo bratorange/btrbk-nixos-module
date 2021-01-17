@@ -17,6 +17,8 @@ let
     boolPair = keyName: value:
       if (value != null) then [ (keyName + "  " + (if value then "yes" else "no")) ] else [];
   };
+
+  retentionPolicy = strMatching "(((([0-9]+)|\\*)[hdmy])[ \t\n\r]*)+";
 in 
 {
   snapshotDir = mkOption {
@@ -72,15 +74,23 @@ in
   preserveDayOfWeek = mkOption {
     type = nullOr (enum ["monday" "tuesday" "wednesday" "thursday" "friday" "saturday" "sunday" ] );
     default = null;
-    description = "A snapshot done at this day will be considered as weekly. See 'Retention Policy' in 'man btrbk.conf' for more information on what that means.";
+    description = "A snapshot done at this day will be considered as weekly. See 'Retention Policy' in (man 5 btrbk.conf) for more information on what that means.";
     apply = conversions.valueIdentityPair "preserve_day_of_week";
   };
 
   preserveHourOfDay = mkOption {
     type = nullOr (ints.between 0 23);
     default = 5;
-    description = "Defines after what time (in full hours since midnight) a snapshot/backup is considered to be a 'daily' backup. Daily, weekly, monthly and yearly backups are preserved on this hour (see RETENTION POLICY below). If you set this option, make sure to also set timestamp_format to 'long' or 'long-iso' (backups and snapshots having no time information will ignore this option). Defaults to '0'.";
+    description = "Defines after what time (in full hours since midnight) a snapshot/backup is considered to be a 'daily' backup. Daily, weekly, monthly and yearly backups are preserved on this hour (see RETENTION POLICY in (man 5 btrbk.conf)). If you set this option, make sure to also set timestamp_format to 'long' or 'long-iso' (backups and snapshots having no time information will ignore this option). Defaults to '0'.";
     apply = conversions.intToBoolPair "preserve_hour_of_day";
+  };
+
+  snapshotPreserve = mkOption {
+    type = nullOr (either (strMatching "no") retentionPolicy);
+    default = null;
+    description = "Set retention policy for snapshots (see RETENTION POLICY in (man 5 btrbk.conf)). If set to 'no', preserve snapshots according to snapshotPreserveMin only. Defaults to 'no'.";
+    example = "5d 4m *y";
+    apply = conversions.valueIdentityPair "snapshot_preserve";
   };
 
   # SSH Options

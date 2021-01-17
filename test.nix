@@ -20,6 +20,7 @@ in
             subvolumes = { "${dataDir}" = {
                   inherit snapshotDir;
                   snapshotName = dataDirName;
+                  snapshotPreserve = "*h 5d 5m 8y";
                 };
               };
             targets = { "${backupDir}" = {}; }; 

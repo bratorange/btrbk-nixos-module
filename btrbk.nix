@@ -8,13 +8,13 @@ let
   btrbkOptions = import ./btrbkOptions.nix {inherit config lib pkgs;};
 
   optionSections = {
-    global = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay;};
+    global = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay snapshotPreserve;};
 
-    subvolume = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotName snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay;};
+    subvolume = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotName snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay snapshotPreserve;};
 
     target = {inherit (btrbkOptions) extraOptions incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay;};
 
-    volume = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay;};
+    volume = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay snapshotPreserve;};
   };
 
   convertEntrys =
