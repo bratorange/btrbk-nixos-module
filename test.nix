@@ -33,6 +33,9 @@ in
   
     testScript =
       ''
+        # eliminate time as an unwanted side effect
+        machine.succeed("timedatectl set-time '00:00:00'")
+
         # create the btrfs pool which will simulate our important data
         machine.succeed("dd if=/dev/zero of=/data_fs bs=120M count=1")
         machine.succeed("mkfs.btrfs /data_fs")
