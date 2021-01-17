@@ -56,7 +56,6 @@ in
         machine.succeed("btrbk --Version")
         machine.succeed("btrbk run 1>&2")
 
-        # TODO fix this
         output = machine.succeed("cat ${backupDir}/${dataDirName}*/*")
         if "${testData}" == output:
             raise Exception("backup didnt work")

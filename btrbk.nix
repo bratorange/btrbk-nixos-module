@@ -4,7 +4,7 @@ with lib;
 
 let
   cfg = config.programs.btrbk;
-  btrbkOptions = import ./btrbkOptions.nix {inherit config lib pkgs;};
+  btrbkOptions = import ./btrbk-options.nix {inherit config lib pkgs;};
 
   optionSections = {
     global = {inherit (btrbkOptions) snapshotDir extraOptions timestampFormat snapshotCreate incremental noauto preserveDayOfWeek sshUser sshIdentity sshCompression sshCipherSpec preserveHourOfDay snapshotPreserve snapshotPreserveMin targetPreserve targetPreserveMin;};
