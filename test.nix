@@ -50,14 +50,14 @@ in
         machine.succeed("mkdir -p ${backupDir}")
         machine.succeed("mount /backup_fs ${backupDir}")
 
+        # print the config file
         machine.succeed("cat /etc/btrbk/btrbk.conf 1>&2")
+
+        # run the backup
         machine.succeed("echo ${testData} > ${btrfsRoot}/${dataDir}/testfile")
-        
         machine.succeed("btrbk --Version")
         machine.succeed("btrbk run 1>&2")
-
-        output = machine.succeed("cat ${backupDir}/${dataDirName}*/*")
-        if "${testData}" == output:
-            raise Exception("backup didnt work")
+        
+        machine.succeed("diff ${backupDir}/${dataDirName}*/* ${btrfsRoot}/${dataDir}/testfile")
       '';
   }
