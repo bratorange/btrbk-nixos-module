@@ -3,7 +3,7 @@
 with lib;
 
 let
-  cfg = config.programs.btrbk;
+  cfg = config.services.btrbk;
   btrbkOptions = import ./btrbk-options.nix {inherit config lib pkgs;};
 
   optionSections = {
@@ -88,7 +88,7 @@ let
       } // optionSections.volume;
   });
   in {
-    options.programs.btrbk = ({
+    options.services.btrbk = ({
       enable = mkOption {
         type = types.bool;
         default = false;
