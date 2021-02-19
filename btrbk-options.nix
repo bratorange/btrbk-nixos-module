@@ -148,8 +148,15 @@ in
   stream_compress = mkOption {
     type = nullOr (enum ["no" "gzip" "pigz" "bzip2" "pbzip2" "xz" "lzo" "lz4"]); 
     default = null;
-    description = "Compress the btrfs send stream before transferring it from/to remote locations. Defaults to “no”. If enabled, make sure that <compress_command> is available on the source and target hosts. Supported <compress_command>: gzip, pigz, bzip2, pbzip2, xz, lzo, lz4.";
+    description = "Compress the btrfs send stream before transferring it from/to remote locations. Defaults to “no”. If enabled, make sure that the compress command is available on the source and target hosts.";
     apply = conversions.valueIdentityPair "stream_compress";
 
+  };
+
+  stream_compress_level = mkOption {
+    type = nullOr (either (enum ["default"]) int);
+    default = null;
+    description = "Compression level for the specified . Refer to the related man-page for details (usually [1..9], where 1 means fastest compression). Defaults to “default” (the default compression level of your compression tool).";
+    apply = conversions.valueIdentityPair "stream_compress_level";
   };
 }
