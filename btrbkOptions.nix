@@ -145,4 +145,12 @@ in
     description = "Selects the cipher specification for encrypting the session (comma-separated list of ciphers in order of preference). See the '-c cipher_spec' option in ssh(1) for more information. Defaults to 'default' (the ciphers specified in ssh_config)";
     apply = conversions.valueIdentityPair "ssh_cipher_spec";
   };
+
+  stream_compress = mkOption {
+    type = nullOr (enum ["no" "gzip" "pigz" "bzip2" "pbzip2" "xz" "lzo" "lz4"]); 
+    default = null;
+    description = "Compress the btrfs send stream before transferring it from/to remote locations. Defaults to “no”. If enabled, make sure that <compress_command> is available on the source and target hosts. Supported <compress_command>: gzip, pigz, bzip2, pbzip2, xz, lzo, lz4.";
+    apply = conversions.valueIdentityPair "stream_compress";
+
+  };
 }
